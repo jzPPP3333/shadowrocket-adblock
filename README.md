@@ -17,13 +17,13 @@
 Shadowrocket → 底部「模块」→ 右上角 `+` → 粘贴下面的地址 → 保存并启用：
 
 ```
-https://raw.githubusercontent.com/2xz7vmvpv4-art/shadowrocket-adblock/main/AdBlock.sgmodule
+https://raw.githubusercontent.com/jzPPP3333/shadowrocket-adblock/main/AdBlock.sgmodule
 ```
 
 国内网络如果拉取失败，用镜像：
 
 ```
-https://raw.gitmirror.com/2xz7vmvpv4-art/shadowrocket-adblock/main/AdBlock.sgmodule
+https://raw.gitmirror.com/jzPPP3333/shadowrocket-adblock/main/AdBlock.sgmodule
 ```
 
 ### 2. 装并信任证书

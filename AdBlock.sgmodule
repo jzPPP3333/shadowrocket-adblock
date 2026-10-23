@@ -1,8 +1,8 @@
 #!name=AdBlock 全能去广告
 #!desc=iOS 全局去广告模块：开屏 / 信息流 / 弹窗 / 横幅 / 追踪 SDK。适用于 Shadowrocket。可安全叠加在你的现有配置之上。
 #!system=ios
-#!author=2xz7vmvpv4-art
-#!homepage=https://github.com/2xz7vmvpv4-art/shadowrocket-adblock
+#!author=jzPPP3333
+#!homepage=https://github.com/jzPPP3333/shadowrocket-adblock
 
 [Rule]
 
@@ -18,6 +18,7 @@ AND,((DEST-PORT,443),(PROTOCOL,UDP)),REJECT
 # ============================================================
 
 # --- 第三方广告聚合平台 ---
+IP-CIDR,182.61.194.7/32,REJECT,no-resolve
 DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
 DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
 DOMAIN-SUFFIX,pangle.io,REJECT
@@ -34,6 +35,10 @@ DOMAIN-SUFFIX,zztfly.com,REJECT
 DOMAIN-SUFFIX,hrmobi.cn,REJECT
 DOMAIN-SUFFIX,inkuai.com,REJECT
 DOMAIN-SUFFIX,httpdns.pro,REJECT
+DOMAIN,sofire.baidu.com,REJECT
+DOMAIN,im-x.jd.com,REJECT
+DOMAIN-SUFFIX,volceapplog.com,REJECT
+DOMAIN-SUFFIX,volces.com,REJECT
 
 # --- 海外广告联盟 ---
 DOMAIN-SUFFIX,doubleclick.net,REJECT
@@ -77,6 +82,7 @@ DOMAIN-SUFFIX,commercial.zhihu.com,REJECT
 DOMAIN-SUFFIX,sulink.zhihu.com,REJECT
 DOMAIN-SUFFIX,ad.zhihu.com,REJECT
 DOMAIN-SUFFIX,sugar.zhihu.com,REJECT
+DOMAIN-SUFFIX,in.zhihu.com,REJECT
 DOMAIN,appcloud.zhihu.com,REJECT
 DOMAIN,appcloud2.zhihu.com,REJECT
 DOMAIN,page-info.zhihu.com,REJECT
@@ -100,11 +106,6 @@ DOMAIN-SUFFIX,imasdk.googleapis.com,REJECT
 # ============================================================
 RULE-SET,https://raw.gitmirror.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Advertising/Advertising.list,REJECT
 RULE-SET,https://raw.gitmirror.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Advertising/Advertising_Domain.list,REJECT
-
-# ============================================================
-# 4. 兜底：其余流量直连（用户自行改成自己的节点或策略组）
-# ============================================================
-FINAL,DIRECT
 
 [URL Rewrite]
 
