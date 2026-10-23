@@ -1,0 +1,7 @@
+# 系统
+.DS_Store
+Thumbs.db
+
+# 个人配置（含节点信息，不要提交）
+personal.conf
+*.personal

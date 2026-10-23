@@ -1,0 +1,156 @@
+#!name=AdBlock 全能去广告
+#!desc=iOS 全局去广告模块：开屏 / 信息流 / 弹窗 / 横幅 / 追踪 SDK。适用于 Shadowrocket。可安全叠加在你的现有配置之上。
+#!system=ios
+#!author=2xz7vmvpv4-art
+#!homepage=https://github.com/2xz7vmvpv4-art/shadowrocket-adblock
+
+[Rule]
+
+# ============================================================
+# 1. 阻断 QUIC (HTTP/3)
+#    App 走 UDP 443 会绕过 MITM 解密，必须先打掉逼它回落 TCP。
+#    放在最顶部，优先级最高。
+# ============================================================
+AND,((DEST-PORT,443),(PROTOCOL,UDP)),REJECT
+
+# ============================================================
+# 2. 已知的纯广告 / 追踪域名（域名级 REJECT，不解密，零性能开销）
+# ============================================================
+
+# --- 第三方广告聚合平台 ---
+DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,pangle.io,REJECT
+DOMAIN-SUFFIX,pangle-sg.com,REJECT
+DOMAIN-SUFFIX,bytedance.com,REJECT
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,e.qq.com,REJECT
+DOMAIN-SUFFIX,mobads.baidu.com,REJECT
+DOMAIN-SUFFIX,mobads-logs.baidu.com,REJECT
+DOMAIN-SUFFIX,union.baidu.com,REJECT
+DOMAIN-SUFFIX,cpro.baidustatic.com,REJECT
+DOMAIN-SUFFIX,open.kuaishouzt.com,REJECT
+DOMAIN-SUFFIX,zztfly.com,REJECT
+DOMAIN-SUFFIX,hrmobi.cn,REJECT
+DOMAIN-SUFFIX,inkuai.com,REJECT
+DOMAIN-SUFFIX,httpdns.pro,REJECT
+
+# --- 海外广告联盟 ---
+DOMAIN-SUFFIX,doubleclick.net,REJECT
+DOMAIN-SUFFIX,googlesyndication.com,REJECT
+DOMAIN-SUFFIX,googleadservices.com,REJECT
+DOMAIN-SUFFIX,adservice.google.com,REJECT
+DOMAIN-SUFFIX,applovin.com,REJECT
+DOMAIN-SUFFIX,unityads.unity3d.com,REJECT
+DOMAIN-SUFFIX,adcolony.com,REJECT
+DOMAIN-SUFFIX,vungle.com,REJECT
+DOMAIN-SUFFIX,inmobi.com,REJECT
+DOMAIN-SUFFIX,mopub.com,REJECT
+DOMAIN-SUFFIX,smaato.net,REJECT
+DOMAIN-SUFFIX,chartboost.com,REJECT
+DOMAIN-SUFFIX,ironsrc.com,REJECT
+DOMAIN-SUFFIX,fyber.com,REJECT
+DOMAIN-SUFFIX,supersonicads.com,REJECT
+DOMAIN-SUFFIX,adnxs.com,REJECT
+DOMAIN-SUFFIX,rubiconproject.com,REJECT
+DOMAIN-SUFFIX,pubmatic.com,REJECT
+DOMAIN-SUFFIX,openx.net,REJECT
+DOMAIN-SUFFIX,criteo.com,REJECT
+DOMAIN-SUFFIX,taboola.com,REJECT
+DOMAIN-SUFFIX,outbrain.com,REJECT
+
+# --- 追踪 / 统计（阻断可减少定向广告，部分 App 统计会失效但功能正常）---
+DOMAIN-SUFFIX,umeng.com,REJECT
+DOMAIN-SUFFIX,umengcloud.com,REJECT
+DOMAIN-SUFFIX,uyunad.com,REJECT
+DOMAIN-SUFFIX,talkingdata.com,REJECT
+DOMAIN-SUFFIX,talkingdata.net,REJECT
+DOMAIN-SUFFIX,adjust.com,REJECT
+DOMAIN-SUFFIX,appsflyer.com,REJECT
+DOMAIN-SUFFIX,branch.io,REJECT
+DOMAIN-SUFFIX,kochava.com,REJECT
+DOMAIN-SUFFIX,thinkingdata.cn,REJECT
+DOMAIN-SUFFIX,getui.com,REJECT
+
+# --- 知乎广告与云控 ---
+DOMAIN-SUFFIX,commercial.zhihu.com,REJECT
+DOMAIN-SUFFIX,sulink.zhihu.com,REJECT
+DOMAIN-SUFFIX,ad.zhihu.com,REJECT
+DOMAIN-SUFFIX,sugar.zhihu.com,REJECT
+DOMAIN,appcloud.zhihu.com,REJECT
+DOMAIN,appcloud2.zhihu.com,REJECT
+DOMAIN,page-info.zhihu.com,REJECT
+DOMAIN,duga.zhihu.com,REJECT
+DOMAIN,crash2.zhihu.com,REJECT
+
+# --- 车来了 ---
+DOMAIN,ad.chelaile.net.cn,REJECT
+DOMAIN,adv.chelaile.net.cn,REJECT
+DOMAIN,switch.chelaile.net.cn,REJECT
+
+# --- 视频 / 音乐类开屏 ---
+DOMAIN-SUFFIX,ad.mgtv.com,REJECT
+DOMAIN-SUFFIX,ads.youtube.com,REJECT
+DOMAIN-SUFFIX,ad.youtube.com,REJECT
+DOMAIN-SUFFIX,imasdk.googleapis.com,REJECT
+
+# ============================================================
+# 3. 云端规则集（自动同步社区维护的广告 / 隐私清单）
+#    以镜像源加载，国内网络可直连。若拉取失败不影响上面 1、2 段。
+# ============================================================
+RULE-SET,https://raw.gitmirror.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Advertising/Advertising.list,REJECT
+RULE-SET,https://raw.gitmirror.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Advertising/Advertising_Domain.list,REJECT
+
+# ============================================================
+# 4. 兜底：其余流量直连（用户自行改成自己的节点或策略组）
+# ============================================================
+FINAL,DIRECT
+
+[URL Rewrite]
+
+# ============================================================
+# 接口级改写：广告混在正常业务 API 里的场景
+# reject-dict 返回 {}，客户端当作"无广告"继续渲染，不会白屏
+# ============================================================
+
+# --- 知乎：开屏 / 浮层 / 预取 / 刷新 / 横幅 ---
+^https?:\/\/api\.zhihu\.com\/commercial_api\/launch_banner url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/launch_banner_v2 url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/real_time_launch_v2 url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/real_time_pull_refresh_v2 url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/real_time_second_floor_v2 url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/app_float_layer url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/sdk\/prefetch url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/banners_v3 url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/ url reject-dict
+^https?:\/\/api\.zhihu\.com\/api\/v4\/ad url reject-dict
+^https?:\/\/api\.zhihu\.com\/api\/v4\/commercial url reject-dict
+^https?:\/\/api\.zhihu\.com\/api\/v4\/app_popup url reject-dict
+^https?:\/\/api\.zhihu\.com\/api\/v4\/creatives url reject-dict
+^https?:\/\/appcloud2?\.zhihu\.com\/v3\/config url reject-dict
+^https?:\/\/appcloud2?\.zhihu\.com\/api\/v4\/config url reject-dict
+
+# --- 车来了：线路页横幅 / 信息流 ---
+^https?:\/\/.*\.chelaile\.net\.cn\/.*\/adpub url reject-dict
+^https?:\/\/.*\.chelaile\.net\.cn\/.*\/line_ad url reject-dict
+^https?:\/\/.*\.chelaile\.net\.cn\/.*\/adv\/ url reject-dict
+^https?:\/\/.*\.chelaile\.net\.cn\/.*\/feed_ad url reject-dict
+^https?:\/\/.*\.chelaile\.net\.cn\/.*\/splash url reject-dict
+
+# --- 哔哩哔哩：开屏 / 推荐页广告 ---
+^https?:\/\/app\.bilibili\.com\/x\/v2\/splash url reject-dict
+^https?:\/\/app\.bilibili\.com\/x\/v2\/feed\/index\/top url reject-dict
+^https?:\/\/api\.bilibili\.com\/x\/v2\/splash url reject-dict
+
+# --- 微博 ---
+^https?:\/\/app\.weibo\.cn\/.*\/ad url reject-dict
+^https?:\/\/m\.weibo\.cn\/.*\/ad url reject-dict
+
+# --- 小红书 ---
+^https?:\/\/.*\.xiaohongshu\.com\/.*\/splash url reject-dict
+^https?:\/\/.*\.xiaohongshu\.com\/.*\/advert url reject-dict
+
+[MITM]
+
+# 只解密需要改写的域名，范围越窄性能越好、误伤越少
+hostname = %APPEND% api.zhihu.com, appcloud.zhihu.com, appcloud2.zhihu.com, *.chelaile.net.cn, app.bilibili.com, api.bilibili.com, app.weibo.cn, *.xiaohongshu.com

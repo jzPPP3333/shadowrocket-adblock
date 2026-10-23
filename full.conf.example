@@ -1,0 +1,216 @@
+# Shadowrocket 完整配置模板（含去广告）
+#
+# 用法：把 [Proxy] 段里的占位符换成你自己的节点，然后把这个文件
+# 作为配置导入 Shadowrocket。
+#
+# 如果你只想在现有配置上叠加去广告，不要用这个文件，
+# 直接用仓库根目录的 AdBlock.sgmodule 模块。
+
+[General]
+bypass-system = true
+skip-proxy = 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10, localhost, *.local, e.crashlytics.com, captive.apple.com
+tun-excluded-routes = 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, 100.64.0.0/10
+dns-server = system, 223.5.5.5, 119.29.29.29
+ipv6 = false
+prefer-ipv6 = false
+dns-fallback-system = false
+dns-direct-system = false
+icmp-auto-reply = true
+always-reject-url-rewrite = false
+private-ip-answer = true
+udp-policy-not-supported-behaviour = REJECT
+
+[Proxy]
+# 替换成你自己的节点。支持 ss / vmess / trojan / hysteria2 等
+# 格式参考 Shadowrocket 自己的导出
+Proxy = ss, SERVER_HOST, SERVER_PORT, encrypt-method=aes-128-gcm, password=PASSWORD, udp-relay=true
+DIRECT = direct
+REJECT = reject
+
+[Proxy Group]
+# 有多个节点时用 url-test 自动选延迟最低的
+Auto = url-test, Proxy, url = http://www.gstatic.com/generate_204, interval=600, tolerance=100
+
+[Rule]
+
+# ============================================================
+# 1. QUIC 阻断 — 必须在最顶部
+# ============================================================
+AND,((DEST-PORT,443),(PROTOCOL,UDP)),REJECT
+
+# ============================================================
+# 2. 广告域名 REJECT — 不做 TLS 解密，零性能开销
+# ============================================================
+
+# 第三方广告聚合
+DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,pangle.io,REJECT
+DOMAIN-SUFFIX,pangle-sg.com,REJECT
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,e.qq.com,REJECT
+DOMAIN-SUFFIX,mobads.baidu.com,REJECT
+DOMAIN-SUFFIX,mobads-logs.baidu.com,REJECT
+DOMAIN-SUFFIX,union.baidu.com,REJECT
+DOMAIN-SUFFIX,cpro.baidustatic.com,REJECT
+DOMAIN-SUFFIX,open.kuaishouzt.com,REJECT
+DOMAIN-SUFFIX,zztfly.com,REJECT
+DOMAIN-SUFFIX,hrmobi.cn,REJECT
+DOMAIN-SUFFIX,inkuai.com,REJECT
+DOMAIN-SUFFIX,httpdns.pro,REJECT
+
+# 海外联盟
+DOMAIN-SUFFIX,doubleclick.net,REJECT
+DOMAIN-SUFFIX,googlesyndication.com,REJECT
+DOMAIN-SUFFIX,googleadservices.com,REJECT
+DOMAIN-SUFFIX,adservice.google.com,REJECT
+DOMAIN-SUFFIX,applovin.com,REJECT
+DOMAIN-SUFFIX,unityads.unity3d.com,REJECT
+DOMAIN-SUFFIX,adcolony.com,REJECT
+DOMAIN-SUFFIX,vungle.com,REJECT
+DOMAIN-SUFFIX,inmobi.com,REJECT
+DOMAIN-SUFFIX,mopub.com,REJECT
+DOMAIN-SUFFIX,smaato.net,REJECT
+DOMAIN-SUFFIX,chartboost.com,REJECT
+DOMAIN-SUFFIX,ironsrc.com,REJECT
+DOMAIN-SUFFIX,fyber.com,REJECT
+DOMAIN-SUFFIX,supersonicads.com,REJECT
+DOMAIN-SUFFIX,adnxs.com,REJECT
+DOMAIN-SUFFIX,rubiconproject.com,REJECT
+DOMAIN-SUFFIX,pubmatic.com,REJECT
+DOMAIN-SUFFIX,openx.net,REJECT
+DOMAIN-SUFFIX,criteo.com,REJECT
+DOMAIN-SUFFIX,taboola.com,REJECT
+DOMAIN-SUFFIX,outbrain.com,REJECT
+
+# 追踪统计（注释掉会恢复推送/统计，但定向广告会回来）
+DOMAIN-SUFFIX,umeng.com,REJECT
+DOMAIN-SUFFIX,umengcloud.com,REJECT
+DOMAIN-SUFFIX,uyunad.com,REJECT
+DOMAIN-SUFFIX,talkingdata.com,REJECT
+DOMAIN-SUFFIX,talkingdata.net,REJECT
+DOMAIN-SUFFIX,adjust.com,REJECT
+DOMAIN-SUFFIX,appsflyer.com,REJECT
+DOMAIN-SUFFIX,branch.io,REJECT
+DOMAIN-SUFFIX,kochava.com,REJECT
+DOMAIN-SUFFIX,thinkingdata.cn,REJECT
+DOMAIN-SUFFIX,getui.com,REJECT
+
+# 知乎
+DOMAIN-SUFFIX,commercial.zhihu.com,REJECT
+DOMAIN-SUFFIX,sulink.zhihu.com,REJECT
+DOMAIN-SUFFIX,ad.zhihu.com,REJECT
+DOMAIN-SUFFIX,sugar.zhihu.com,REJECT
+DOMAIN,appcloud.zhihu.com,REJECT
+DOMAIN,appcloud2.zhihu.com,REJECT
+DOMAIN,page-info.zhihu.com,REJECT
+DOMAIN,duga.zhihu.com,REJECT
+DOMAIN,crash2.zhihu.com,REJECT
+
+# 车来了
+DOMAIN,ad.chelaile.net.cn,REJECT
+DOMAIN,adv.chelaile.net.cn,REJECT
+DOMAIN,switch.chelaile.net.cn,REJECT
+
+# 视频平台
+DOMAIN-SUFFIX,ad.mgtv.com,REJECT
+DOMAIN-SUFFIX,ads.youtube.com,REJECT
+DOMAIN-SUFFIX,ad.youtube.com,REJECT
+DOMAIN-SUFFIX,imasdk.googleapis.com,REJECT
+
+# ============================================================
+# 3. 云端规则集
+# ============================================================
+RULE-SET,https://raw.gitmirror.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Advertising/Advertising.list,REJECT
+RULE-SET,https://raw.gitmirror.com/blackmatrix7/ios_rule_script/master/rule/Shadowrocket/Advertising/Advertising_Domain.list,REJECT
+
+# ============================================================
+# 4. 分流
+# ============================================================
+
+# 局域网直连
+IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+
+# 国内域名直连
+DOMAIN-SUFFIX,cn,DIRECT
+DOMAIN-SUFFIX,zhihu.com,DIRECT
+DOMAIN-SUFFIX,zhimg.com,DIRECT
+DOMAIN-SUFFIX,bilibili.com,DIRECT
+DOMAIN-SUFFIX,hdslb.com,DIRECT
+DOMAIN-SUFFIX,weibo.com,DIRECT
+DOMAIN-SUFFIX,weibo.cn,DIRECT
+DOMAIN-SUFFIX,xiaohongshu.com,DIRECT
+DOMAIN-SUFFIX,chelaile.net.cn,DIRECT
+
+# 需要走代理的
+DOMAIN-SUFFIX,google.com,Auto
+DOMAIN-SUFFIX,googleapis.com,Auto
+DOMAIN-SUFFIX,gstatic.com,Auto
+DOMAIN-SUFFIX,youtube.com,Auto
+DOMAIN-SUFFIX,ytimg.com,Auto
+DOMAIN-SUFFIX,github.com,Auto
+DOMAIN-SUFFIX,githubusercontent.com,Auto
+DOMAIN-SUFFIX,twitter.com,Auto
+DOMAIN-SUFFIX,x.com,Auto
+DOMAIN-SUFFIX,twimg.com,Auto
+DOMAIN-SUFFIX,telegram.org,Auto
+DOMAIN-SUFFIX,t.me,Auto
+DOMAIN-SUFFIX,openai.com,Auto
+DOMAIN-SUFFIX,anthropic.com,Auto
+DOMAIN-SUFFIX,claude.ai,Auto
+
+# 国内 IP 直连
+GEOIP,CN,DIRECT
+
+# 兜底
+FINAL,Auto
+
+[URL Rewrite]
+
+# 广告混在业务 API 里，必须 MITM 解密后改写响应
+# reject-dict 返回 {}，客户端当作"无广告"继续渲染，不白屏
+
+# 知乎
+^https?:\/\/api\.zhihu\.com\/commercial_api\/launch_banner url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/launch_banner_v2 url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/real_time_launch_v2 url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/real_time_pull_refresh_v2 url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/real_time_second_floor_v2 url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/app_float_layer url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/sdk\/prefetch url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/banners_v3 url reject-dict
+^https?:\/\/api\.zhihu\.com\/commercial_api\/ url reject-dict
+^https?:\/\/api\.zhihu\.com\/api\/v4\/ad url reject-dict
+^https?:\/\/api\.zhihu\.com\/api\/v4\/commercial url reject-dict
+^https?:\/\/api\.zhihu\.com\/api\/v4\/app_popup url reject-dict
+^https?:\/\/api\.zhihu\.com\/api\/v4\/creatives url reject-dict
+^https?:\/\/appcloud2?\.zhihu\.com\/v3\/config url reject-dict
+
+# 车来了
+^https?:\/\/.*\.chelaile\.net\.cn\/.*\/adpub url reject-dict
+^https?:\/\/.*\.chelaile\.net\.cn\/.*\/line_ad url reject-dict
+^https?:\/\/.*\.chelaile\.net\.cn\/.*\/adv\/ url reject-dict
+^https?:\/\/.*\.chelaile\.net\.cn\/.*\/feed_ad url reject-dict
+^https?:\/\/.*\.chelaile\.net\.cn\/.*\/splash url reject-dict
+
+# 哔哩哔哩
+^https?:\/\/app\.bilibili\.com\/x\/v2\/splash url reject-dict
+^https?:\/\/app\.bilibili\.com\/x\/v2\/feed\/index\/top url reject-dict
+^https?:\/\/api\.bilibili\.com\/x\/v2\/splash url reject-dict
+
+# 微博
+^https?:\/\/app\.weibo\.cn\/.*\/ad url reject-dict
+^https?:\/\/m\.weibo\.cn\/.*\/ad url reject-dict
+
+# 小红书
+^https?:\/\/.*\.xiaohongshu\.com\/.*\/splash url reject-dict
+^https?:\/\/.*\.xiaohongshu\.com\/.*\/advert url reject-dict
+
+[MITM]
+# 只解密需要改写的域名，范围越窄越好
+hostname = api.zhihu.com, appcloud.zhihu.com, appcloud2.zhihu.com, *.chelaile.net.cn, app.bilibili.com, api.bilibili.com, app.weibo.cn, m.weibo.cn, *.xiaohongshu.com
+
+[Host]
+localhost = 127.0.0.1
